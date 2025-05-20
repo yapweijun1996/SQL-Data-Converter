@@ -27,6 +27,12 @@ INSERT INTO users (name, birthdate, note)
 VALUES ('Alice', {d '1990-01-01'}, 'Test user');
 ````
 
+## Demo
+https://yapweijun1996.github.io/SQL-Data-Converter/
+
+## Preview
+![image](https://github.com/user-attachments/assets/01117dfc-1c8b-4840-90a6-7af9451dcb4f)
+
 ## 📜 License
 
 This project is open-source and free to use.
