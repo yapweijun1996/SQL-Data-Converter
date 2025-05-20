@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Data Converter</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      textarea {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        display: block;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      button {
+        display: block;
+        width: 150px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #result {
+        margin-top: 20px;
+        text-align: center;
+        color: red;
+      }
+      #message {
+        text-align: center;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 1000px;
+        color: black;
+      }
+      th, td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      td {
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SQL Data Converter</h1>
+    <textarea id="sqlData" rows="10" cols="100">
+Insert Into sample_table_name ( xxx, sss, ddd, fffffg) Values ( 'dddd', {d '2024-08-21'}, 'Test-软件系统3年', '111.00' )
+    </textarea>
+    <br>
+    <button onclick="convertSQL()">Convert</button>
+    <div id="result"></div>
+    <div id="message"></div>
+
+    <script>
+      // Function to convert SQL insert statement into a displayable HTML table
+      function convertSQL() {
+        const sqlInput = document.getElementById('sqlData').value.trim().replace(/;$/, "");
+        const resultDiv = document.getElementById('result');
+        const messageDiv = document.getElementById('message');
+        resultDiv.innerHTML = '';
+        messageDiv.textContent = '';
+
+        try {
+          const tableNameMatch = sqlInput.match(/Insert Into (\w+)/i);
+          if (!tableNameMatch) throw new Error("Table name not found.");
+          const tableName = tableNameMatch[1];
+
+          const columnMatch = sqlInput.match(/\(([^)]+)\)/);
+          if (!columnMatch) throw new Error("Column list not found.");
+          const columns = columnMatch[1].split(',').map(col => col.trim());
+
+          const valuesMatch = sqlInput.match(/Values\s*\((.+)\)\s*$/i);
+          if (!valuesMatch) throw new Error("Values list not found.");
+          const rawValues = valuesMatch[1];
+
+          const values = [];
+          let current = '';
+          let inQuotes = false;
+          let quoteChar = '';
+          for (let i = 0; i < rawValues.length; i++) {
+            const char = rawValues[i];
+            if ((char === "'" || char === '"') && (!inQuotes || char === quoteChar)) {
+              if (inQuotes && rawValues[i + 1] === char) {
+                current += char;
+                i++;
+              } else {
+                inQuotes = !inQuotes;
+                quoteChar = char;
+              }
+              current += char;
+            } else if (char === ',' && !inQuotes) {
+              values.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          if (current.trim()) values.push(current.trim());
+
+          const cleanValues = values.map(val => val
+            .replace(/^{d\s*'([^']+)'}$/, "$1")
+            .replace(/^'(.*)'$/, "$1")
+            .replace(/^"(.*)"$/, "$1")
+          );
+
+          if (columns.length !== cleanValues.length) {
+            throw new Error("Mismatch between number of columns and values.");
+          }
+
+          const table = document.createElement('table');
+
+          const headerRow = document.createElement('tr');
+          columns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+          });
+          table.appendChild(headerRow);
+
+          const valueRow = document.createElement('tr');
+          cleanValues.forEach(val => {
+            const td = document.createElement('td');
+            td.textContent = `${val} (${val.length})`;
+            valueRow.appendChild(td);
+          });
+          table.appendChild(valueRow);
+
+          resultDiv.style.color = 'black';
+          resultDiv.appendChild(table);
+
+          messageDiv.style.color = 'green';
+          messageDiv.textContent = 'Conversion successful!';
+        } catch (error) {
+          resultDiv.style.color = 'red';
+          resultDiv.textContent = '';
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = 'Error: ' + error.message;
+        }
+      }
+    </script>
+  </body>
+</html>
