@@ -7,27 +7,42 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        margin: 20px;
+        margin: 0;
+        padding: 0;
         background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
       }
       h1 {
         text-align: center;
         color: #333;
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
       }
       textarea {
         width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-        display: block;
+        resize: vertical;
         border: 1px solid #ddd;
         padding: 10px;
         border-radius: 5px;
         font-size: 14px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
       }
       button {
         display: block;
         width: 150px;
-        margin: 20px auto;
+        margin: 10px auto 20px;
         padding: 10px;
         background-color: #007BFF;
         color: white;
@@ -50,10 +65,9 @@
         margin-top: 10px;
       }
       table {
-        margin: 0 auto;
+        margin: 20px auto;
         border-collapse: collapse;
         width: 100%;
-        max-width: 1000px;
         color: black;
       }
       th, td {
@@ -63,24 +77,31 @@
       }
       th {
         background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+        z-index: 1;
       }
       td {
         background-color: #fff;
       }
+      tr:nth-child(even) td {
+        background-color: #f9f9f9;
+      }
     </style>
   </head>
   <body>
-    <h1>SQL Data Converter</h1>
-    <textarea id="sqlData" rows="10" cols="100">
+    <div class="container">
+      <h1>SQL Data Converter</h1>
+      <label for="sqlData">Paste your SQL INSERT statement below:</label>
+      <textarea id="sqlData" rows="10" autofocus>
 Insert Into sample_table_name ( xxx, sss, ddd, fffffg) Values ( 'dddd', {d '2024-08-21'}, 'Test-软件系统3年', '111.00' )
-    </textarea>
-    <br>
-    <button onclick="convertSQL()">Convert</button>
-    <div id="result"></div>
-    <div id="message"></div>
+      </textarea>
+      <button onclick="convertSQL()">Convert</button>
+      <div id="result"></div>
+      <div id="message"></div>
+    </div>
 
     <script>
-      // Function to convert SQL insert statement into a displayable HTML table
       function convertSQL() {
         const sqlInput = document.getElementById('sqlData').value.trim().replace(/;$/, "");
         const resultDiv = document.getElementById('result');
@@ -97,7 +118,7 @@ Insert Into sample_table_name ( xxx, sss, ddd, fffffg) Values ( 'dddd', {d '2024
           if (!columnMatch) throw new Error("Column list not found.");
           const columns = columnMatch[1].split(',').map(col => col.trim());
 
-          const valuesMatch = sqlInput.match(/Values\s*\((.+)\)\s*$/i);
+		  const valuesMatch = sqlInput.match(/VALUES\s*\(([\s\S]+)\)\s*$/i);
           if (!valuesMatch) throw new Error("Values list not found.");
           const rawValues = valuesMatch[1];
 
